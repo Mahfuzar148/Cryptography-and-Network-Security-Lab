@@ -250,23 +250,23 @@ shift = shift \mod 26
 
 ### Uppercase:
 
-[
+
 P = ch - 'A'
-]
+
 
 ### Lowercase:
 
-[
+
 P = ch - 'a'
-]
+
 
 ---
 
 ## 🔹 **Step 6: Encryption formula apply করা**
 
-[
+
 C = (P + shift) \mod 26
-]
+
 
 👉 এখানে:
 
@@ -279,15 +279,15 @@ C = (P + shift) \mod 26
 
 ### Uppercase:
 
-[
+
 char = C + 'A'
-]
+
 
 ### Lowercase:
 
-[
+
 char = C + 'a'
-]
+
 
 ---
 
@@ -307,9 +307,9 @@ char = C + 'a'
 
 👉 Reverse process:
 
-[
+
 P = (C - shift + 26) \mod 26
-]
+
 
 👉 কেন +26?
 👉 negative avoid করার জন্য
@@ -319,13 +319,21 @@ P = (C - shift + 26) \mod 26
 # 🔍 **Complete Flow (Conceptual)**
 
 1️⃣ Input text + shift
+
 2️⃣ Normalize shift
+
 3️⃣ Loop through each character
+
 4️⃣ Check type (upper/lower/other)
+
 5️⃣ Convert to number
+
 6️⃣ Apply formula
+
 7️⃣ Convert back to character
+
 8️⃣ Append to result
+
 9️⃣ Print output
 
 ---
