@@ -1,127 +1,314 @@
-The **Polygram Algorithm** (often associated with classical cryptography) refers to encryption methods that operate on **groups of letters (polygrams)** rather than single characters. This makes it more secure than simple substitution ciphers because it hides letter frequency patterns better.
 
 ---
 
-## 🔐 What is a Polygram?
-
-A **polygram** is a block of letters treated as a unit:
-
-* **Digram** → 2 letters (e.g., "TH")
-* **Trigram** → 3 letters (e.g., "THE")
-* And so on…
-
-Instead of encrypting one letter at a time, the algorithm encrypts **multiple letters together**.
+# 📘 Polygram Substitution Algorithm (Full Documentation)
 
 ---
 
-## ⚙️ How the Polygram Algorithm Works
+## 🔰 1. Introduction
 
-### 1. Divide the plaintext
+The **Polygram Substitution Algorithm** is a cryptographic technique where multiple characters (groups) are encrypted together instead of encrypting single characters individually.
 
-Break the message into fixed-size blocks.
+In this system:
 
-Example (digram):
+* 3-letter groups → replaced by another unique 3-letter group
+* 2-letter groups → replaced by another unique 2-letter group
+* 1-letter → replaced by another unique character
 
+This ensures stronger security compared to monoalphabetic substitution.
+
+---
+
+## 🎯 2. Objective
+
+* To encrypt plaintext using group-based substitution
+* To avoid frequency analysis by using polygrams
+* To ensure **unique mapping** (no conflict between groups)
+
+---
+
+## 🔤 3. Alphabet Set
+
+We use:
+
+```text
+A–Z (26 English uppercase letters)
 ```
-HELLO → HE LL OX   (padding added if needed)
+
+---
+
+## 🔢 4. Total Possible Combinations
+
+### ✅ 4.1 Three-letter combinations
+
+[
+26^3 = 17576
+]
+
+Examples:
+
+```text
+AAA, AAB, AAC, ..., ZZZ
 ```
 
 ---
 
-### 2. Apply substitution or transformation
+### ✅ 4.2 Two-letter combinations
 
-Each block is encrypted using a rule or key:
+[
+26^2 = 676
+]
 
-* Could be a lookup table
-* Could use a matrix (like in Hill cipher)
-* Could rearrange letters
+Examples:
+
+```text
+AA, AB, AC, ..., ZZ
+```
 
 ---
 
-### 3. Produce ciphertext
+### ✅ 4.3 Single-letter combinations
 
-Each block is replaced with another block.
+[
+26
+]
+
+Examples:
+
+```text
+A, B, C, ..., Z
+```
+
+---
+
+## 📁 5. Mapping Table Creation
+
+We create three mapping tables:
+
+### 🔹 5.1 Three-letter mapping
+
+Each 3-letter group is mapped to a **unique** 3-letter group.
 
 Example:
 
+```text
+AAA → QWE
+AAB → RTY
+AAC → UIO
+...
 ```
-HE → AB
-LL → CD
-OX → EF
 
-Ciphertext: ABCDEF
+---
+
+### 🔹 5.2 Two-letter mapping
+
+```text
+AA → QW
+AB → ER
+AC → TY
+...
 ```
 
 ---
 
-## 🔑 Common Polygram Algorithms
+### 🔹 5.3 One-letter mapping
 
-### 1. Playfair Cipher (Digram-based)
-
-![Image](https://images.openai.com/static-rsc-4/VFVBiyVQM7ChBfYshYaBA_MOdF7KsVA5Bh8plakgWf-yVhseuzKuJ1wmN6HU9vLBmMOQBw_hClCubl9X_CDs6-4-yHn0FFlhZ2vCDUeNeBmBNNJfRCtpNoWAvvkC7Q5K2-FHKtPGZoxHlaS9uazFLiRYcWS-RUaYC4QVyabDmKvyxgsXdlkBo7pjlCOHD_k7?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/rcU6VFEcLVVzg7DDwBw5PgJVH8IlTEIAjTQw3bdKpzuZfsaG9RDtniXZEhWrHuN9z3Z128w6qSLguSfDARNMdRQ-SmMIUiQl3mnQ872wyFA-_CSH33S29_2X4g5S2eMZaxV0HOBRxLZBKnQ0VFsfwNlrP94hknKD2TxzP2XEVxo9HedDvTmVDik7MwJ3q9KD?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/ZQkjtI3GKM3EdP4QoEMnv8dxApnMhWlNpFaottcwatMSx1ciVZEn1nrsonW5-4tbjbgKL-2qg9pMUIYfIG0GuEoBjvx8kBpyU_LNE1MJIUexHmh4DCIVRpzpKTiCOM0_W3PdVF0gYpkVRZGZW5hD7D7s7TCf5KD7S65JN5ehVbmjwyXPdt8IpC5h9OkZyvtz?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/jCIKH8oFlp2xB7fghBRqeWGWI2L-KUKjEIQSrIxfdrFkBLWtCfswaM4GOudJmKGHcXijpgyJ2U-bBrhs2z0VLDxo8rchFMVPDJvk9Sb4RdtL4R6dh647HJ1ijnkPai8aVY2QWHRUTTfrz318n_bWME7Vr74XFpOtYj7Bpw-LFzRZGno1CkZBAEESlyfhBIcx?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/Qr7l3UdSwIBPSugMMkkLdqHc9dZF4i4dSf974UJUqyRqNg3IldpRoRLTy6-0VrLyAsa9ijcy2tP4ApyXpx-Rc2XvCJ9rj6QuU8b9n2s1ZG8i8xE70NVThuQ1XTvMVPjJ638DtKDT9gsG2Ps0wiHRCfgfiAE7gtq9Hq7lQYeb_DnC4wQGiHpS6uqQhfh17P6m?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/Dh9qwpdxA8pkBP5Xj0MxSsVsQ0tMWFNKe_DIBZIwzcmNVSyRaK0UM8NG6p0iVB2N3kJlt_u9ouUE-CS8R-hsZ2V7NEwrmWwyRkXmr11Pu9zeQq1gSwcJz5-1C57J8ntap3W2pGrpjN_HrPoSJ0v9WmyrPP8b0rIlhhQ6TsF40na8iUSPkBuBxJHUqGw3rJPh?purpose=fullsize)
-
-* Uses **pairs of letters**
-* Based on a 5×5 grid of letters
-* Rules depend on position of letters in the grid
+```text
+A → Q
+B → W
+C → E
+...
+```
 
 ---
 
-### 2. Hill Cipher (Matrix-based)
+## ⚠️ Important Rule (Uniqueness)
 
-![Image](https://images.openai.com/static-rsc-4/AhdXbZQ6X_fHt2YQNh0sh68cN0sbg-297vpfgqwfAznpGAhPomMn_NmXNYcZAk9HD5s7JvqT6qAbAwn2SQua88Ks-NqGx1opGIKArDwpaZN8kVszOV18FwFQwHh5GkhqblWP7Vh4VDVMqyJrXLQHBE_OVpoA7D3k0qsuPjkRUwO0RzZjhLyCuW9cGRnaKteo?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/292-DOEx7Hzjvp4WZF8_ro9MryyGcaGMyr7IXIPq5Y6P_-s_sXUHev-ikMuokXtZpnP-OCNAY3pLPwxsa2iMYBy0a5Slt01PHuZWsXhuaSjnyGqcqpVkUYKb7edcjrfrEDeyudD_2RfEJjQKyJEp3xvxnIoH2am0dxuN-PU_tTmpwMyaZSmdFNaALNMid_nX?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/IAxMEAvKs_HJ6eURdmCii9z8-eD_XxV3M4ciQY2WTLknx0E8n18492ZljwkiAjbD1hkigCGEOlhS1SaYZGVMiSFN68WunCnk2YJ_xUCQVWCs8iK04tDujoDz6yBOVyNagMdgmytZKIjdNDBxBS7ZZjvjDULtdBJ9k0MgLfWZpgq1ZYbbt9ynl7BVNW5Z02bi?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/XxRRu3RzvW4T_Fq8zAhCc68MKizzsKkcvT8VtFvNb3DcTGYCzRRhl5g0AhBgw7M0O3y-3Tig2ZQRMScgQ1nJPLUxj09wYe2axtmteVgs0KR6hV_3YIJy2oJtzkSG6TTFcBxULa3mpiIHTvIApLEvUO8KIT_xfomYtLVyKKQJ9g_3Hn54sm6Gl6hIPaZ8zbyk?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/59YhRiwbiVPFtEMXzMlgyO9cmLb3tJ18IkM7GNEi-f60IcAFpBy6tIohLyOLo3I7nxyRJZY0kxmf6xOVfakTsFt89MkqbRP31K4E75uyYp2JB55_a4sGKq8fjxmM4J89On9z7Cqq-6A4XVLwRd5jJ0RxdPUvTgdIz_BNbuprkL7e3CuD5uJM95f6erIYO0YF?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/tLYP-gnd3fh00TOUs9XPwBXhpXtpQLMvEplEMU1ejJTj076D0La5FHEafkh1Y9qG3WBYYnKoUmcTbWbph7ai75RapJ4psdRlQM3f_3oXvCSfJY9SfkKrF90b0IBT6KN_ypewhm0PeDGy6U6vsFtr9s8rA1IbdtZwa-57G1LX8tohKrL52DLyeq1LF3zk1cqZ?purpose=fullsize)
-
-* Uses linear algebra (matrices)
-* Converts letters into numbers
-* Multiplies blocks by a key matrix
+* No two inputs can map to the same output
+* Mapping must be **one-to-one (bijective)**
+* Otherwise conflict will occur during decryption
 
 ---
 
-## 📊 Why Polygram is Important
+## ⚙️ 6. Encryption Algorithm
 
-Compared to single-letter (monoalphabetic) ciphers:
+### Step 1: Input plaintext
 
-* ✔ More secure against frequency analysis
-* ✔ Hides common patterns like "E" or "TH"
-* ✔ Foundation for modern encryption techniques
-
----
-
-## ⚠️ Limitations
-
-* Still breakable with advanced analysis
-* Requires shared key or matrix
-* More complex than simple substitution
+```text
+Plaintext = P
+```
 
 ---
 
-## 🧠 Simple Analogy
+### Step 2: Calculate length
 
-Think of it like:
+```text
+n = length(P)
+```
 
-* **Monoalphabetic cipher** → translating word letter-by-letter
-* **Polygram cipher** → translating entire syllables or chunks
+---
 
-This makes it harder for attackers to guess patterns.
+### Step 3: Compute remainder
+
+```text
+r = n % 3
+```
+
+---
+
+### Step 4: Apply rules
+
+#### 🔸 Case 1: r = 0
+
+* Divide entire text into 3-letter groups
+* Apply 3-letter mapping
+
+---
+
+#### 🔸 Case 2: r = 2
+
+* First (n-2) characters → 3-letter groups
+* Last 2 characters → 2-letter mapping
+
+---
+
+#### 🔸 Case 3: r = 1
+
+* First (n-3) characters → 3-letter groups
+* Next 2 characters → 2-letter mapping
+* Last 1 character → 1-letter mapping
+
+---
+
+### Step 5: Generate ciphertext
+
+Concatenate all mapped outputs.
+
+---
+
+## 🔁 7. Pseudo Code
+
+```text
+Input: Plaintext P
+
+1. n = length(P)
+2. r = n % 3
+3. i = 0
+
+4. while i < n:
+    if (n - i) > 3:
+        take 3 letters → apply 3-letter mapping
+        i = i + 3
+
+    else if (n - i) == 3:
+        apply 3-letter mapping
+        break
+
+    else if (n - i) == 2:
+        apply 2-letter mapping
+        break
+
+    else if (n - i) == 1:
+        apply 1-letter mapping
+        break
+
+Output: Ciphertext
+```
+
+---
+
+## 🧩 8. Example
+
+### 🔹 Example 1
+
+```text
+Input: HELLOW
+Length = 6 → r = 0
+```
+
+Grouping:
+
+```text
+HEL LOW
+```
+
+Encryption:
+
+```text
+HEL → XYZ
+LOW → ABC
+```
+
+Output:
+
+```text
+XYZABC
+```
+
+---
+
+### 🔹 Example 2
+
+```text
+Input: HELLO
+Length = 5 → r = 2
+```
+
+Grouping:
+
+```text
+HEL LO
+```
+
+Encryption:
+
+```text
+HEL → QWE
+LO → RT
+```
+
+Output:
+
+```text
+QWERT
+```
+
+---
+
+### 🔹 Example 3
+
+```text
+Input: HELLOX
+Length = 6 → r = 0
+```
+
+Grouping:
+
+```text
+HEL LOX
+```
+
+---
+
+## 🔐 9. Advantages
+
+* More secure than monoalphabetic cipher
+* Reduces frequency pattern detection
+* Flexible grouping system
+
+---
+
+## ⚠️ 10. Limitations
+
+* Large mapping table required
+* Complex to implement manually
+* Storage of mappings needed
+
+---
+
+## 🧠 11. Conclusion
+
+The Polygram Substitution Algorithm enhances encryption security by processing multiple characters at once. By using **3-letter primary grouping** and handling remainders with 2-letter and 1-letter mappings, it ensures both efficiency and uniqueness in encryption.
 
 ---
 
