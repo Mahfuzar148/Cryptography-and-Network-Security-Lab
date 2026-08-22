@@ -1,72 +1,99 @@
 from Crypto.PublicKey import RSA 
 from Crypto.Cipher import AES, PKCS1_OAEP 
-from Crypto.Random import get_random_bytes 
+from Crypto.Random import get_random_bytes
 import base64 
-import zlib 
+import zlib
 
 
 
-# ------------ KEY GENERATION ------------
+# ---------------- KEY GENERATION ----------------
 
-receiver_private = RSA.generate(1024) 
-receiver_public = receiver_private.publickey()
+r_pr_key = RSA.generate(1024)
+r_pub_key = r_pr_key.publickey()
 
 
 
-# ------------ SENDER SIDE ------------
-
-print("----------- Sender Side -----------")
+# Original Message
 
 M = "The name of my country is Bangladesh"
 
 
 
-# Generate session key Ks
+# ---------------- SENDER SIDE ----------------
+
+
+# Generate Session Key Ks
 
 Ks = get_random_bytes(16)
 
 
 
-# EC : Encrypt message using Ks
+# Z : Compression
 
-aes = AES.new(Ks, AES.MODE_EAX)
-
-encrypted_M = aes.encrypt(
+compressed_M = zlib.compress(
     M.encode()
 )
+
+
+
+# EC : Encrypt compressed message using Ks
+
+aes = AES.new(
+    Ks,
+    AES.MODE_EAX
+)
+
+
+encrypted_m = aes.encrypt(
+    compressed_M
+)
+
 
 nonce = aes.nonce
 
 
 
-# EP : Encrypt Ks using receiver public key
+# EP : Encrypt Ks using Receiver Public Key
 
-rsa = PKCS1_OAEP.new(receiver_public)
+rsa = PKCS1_OAEP.new(
+    r_pub_key
+)
 
-encrypted_Ks = rsa.encrypt(Ks)
+
+encrypted_Ks = rsa.encrypt(
+    Ks
+)
 
 
 
 # Convert bytes to string
 
-encrypted_Ks_text = base64.b64encode(encrypted_Ks).decode()
-
-encrypted_M_text = base64.b64encode(encrypted_M).decode()
-
-nonce_text = base64.b64encode(nonce).decode()
+encrypted_m_text = base64.b64encode(
+    encrypted_m
+).decode()
 
 
-
-# Combine packet
-
-packet = encrypted_Ks_text  + "|" + nonce_text + "|"+encrypted_M_text
-
+nonce_text = base64.b64encode(
+    nonce
+).decode()
 
 
+encrypted_Ks_text = base64.b64encode(
+    encrypted_Ks
+).decode()
 
-# Compression
 
-send_data = zlib.compress(packet.encode())
+
+# Packet = Encrypted Message + Nonce + Encrypted Session Key
+
+packet = (
+    encrypted_m_text 
+    + "|"
+    + nonce_text 
+    + "|"
+    + encrypted_Ks_text
+)
+
 
 
 print("Message Sent")
@@ -74,55 +101,69 @@ print("Message Sent")
 
 
 
-
-# ------------ RECEIVER SIDE ------------
-
-print("\n----------- Receiver Side -----------")
+# ---------------- RECEIVER SIDE ----------------
 
 
 
-# Decompression
+# Separate packet
 
-received_data = zlib.decompress(send_data).decode()
-
-
-
-# Separate
-
-encrypted_Ks_text, nonce_text, encrypted_M_text = received_data.split("|")
+encrypted_m, nonce, encrypted_Ks = packet.split("|")
 
 
 
 # Convert back to bytes
 
-encrypted_Ks = base64.b64decode(encrypted_Ks_text)
-
-nonce = base64.b64decode(nonce_text)
-
-encrypted_M = base64.b64decode(encrypted_M_text)
+encrypted_m = base64.b64decode(
+    encrypted_m
+)
 
 
+nonce = base64.b64decode(
+    nonce
+)
 
-# DP : Recover Ks
 
-rsa = PKCS1_OAEP.new(receiver_private)
+encrypted_Ks = base64.b64decode(
+    encrypted_Ks
+)
 
-Ks = rsa.decrypt(encrypted_Ks)
+
+
+# DP : Recover Ks using private key
+
+rsa = PKCS1_OAEP.new(
+    r_pr_key
+)
+
+
+decrypted_Ks = rsa.decrypt(
+    encrypted_Ks
+)
 
 
 
 # DC : Decrypt message
 
 aes = AES.new(
-    Ks,
+    decrypted_Ks,
     AES.MODE_EAX,
     nonce=nonce
 )
 
 
-original_M = aes.decrypt(encrypted_M)
+compressed_M = aes.decrypt(
+    encrypted_m
+)
+
+
+
+# Z^-1 : Decompression
+
+decrypted_M = zlib.decompress(
+    compressed_M
+)
 
 
 
 print("Decrypted Message:")
-print(original_M.decode())
+print(decrypted_M.decode())
