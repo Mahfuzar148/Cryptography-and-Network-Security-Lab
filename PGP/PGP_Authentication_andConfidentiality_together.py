@@ -1,8 +1,8 @@
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES, PKCS1_OAEP
-from Crypto.Hash import SHA256
-from Crypto.Signature import pkcs1_15
-from Crypto.Random import get_random_bytes
+from Crypto.PublicKey import RSA 
+from Crypto.Cipher import AES, PKCS1_OAEP 
+from Crypto.Hash import SHA256 
+from Crypto.Signature import pkcs1_15 
+from Crypto.Random import get_random_bytes 
 
 import base64
 import zlib
@@ -38,9 +38,27 @@ M = "The name of my country is Bangladesh"
 hash_object = SHA256.new(M.encode())
 
 
-# E(PRa, H(M))
+# E(PRa,H(M))
 
 signature = pkcs1_15.new(sender_private).sign(hash_object)
+
+
+
+# Signature + Message
+
+signed_message = (
+    base64.b64encode(signature).decode()
+    + "|"
+    + M
+)
+
+
+
+# -------- Compression --------
+
+compressed_data = zlib.compress(
+    signed_message.encode()
+)
 
 
 
@@ -53,12 +71,16 @@ Ks = get_random_bytes(16)
 
 
 
-# EC(M, Ks)
+# EC(compressed data, Ks)
 
-aes = AES.new(Ks, AES.MODE_EAX)
+aes = AES.new(
+    Ks,
+    AES.MODE_EAX
+)
 
-encrypted_message = aes.encrypt(
-    M.encode()
+
+encrypted_data = aes.encrypt(
+    compressed_data
 )
 
 nonce = aes.nonce
@@ -73,23 +95,15 @@ encrypted_Ks = rsa.encrypt(Ks)
 
 
 
-# Convert bytes to string
+# Send packet
 
 packet = (
     base64.b64encode(encrypted_Ks).decode()
     + "|"
     + base64.b64encode(nonce).decode()
     + "|"
-    + base64.b64encode(encrypted_message).decode()
-    + "|"
-    + base64.b64encode(signature).decode()
+    + base64.b64encode(encrypted_data).decode()
 )
-
-
-
-# Z compression
-
-send_data = zlib.compress(packet.encode())
 
 
 print("Message Sent")
@@ -104,29 +118,24 @@ print("\n----------- Receiver Side -----------")
 
 
 
-# Z^-1
+# Separate packet
 
-received = zlib.decompress(send_data).decode()
-
-
-
-encrypted_Ks, nonce, encrypted_message, signature = received.split("|")
+encrypted_Ks, nonce, encrypted_data = packet.split("|")
 
 
 
-# Back to bytes
+# Convert bytes
 
 encrypted_Ks = base64.b64decode(encrypted_Ks)
 
 nonce = base64.b64decode(nonce)
 
-encrypted_message = base64.b64decode(encrypted_message)
-
-signature = base64.b64decode(signature)
+encrypted_data = base64.b64decode(encrypted_data)
 
 
 
-# -------- Confidentiality --------
+
+# -------- Recover Ks --------
 
 
 # DP(KRb, encrypted Ks)
@@ -137,7 +146,8 @@ Ks = rsa.decrypt(encrypted_Ks)
 
 
 
-# DC(M)
+# -------- Decrypt --------
+
 
 aes = AES.new(
     Ks,
@@ -146,14 +156,33 @@ aes = AES.new(
 )
 
 
-original_message = aes.decrypt(
-    encrypted_message
+compressed_data = aes.decrypt(
+    encrypted_data
+)
+
+
+
+# -------- Decompression --------
+
+
+signed_message = zlib.decompress(
+    compressed_data
 ).decode()
 
 
 
+# Separate signature and message
+
+signature, received_message = signed_message.split("|")
+
+
+
+signature = base64.b64decode(signature)
+
+
+
 print("Received Message:")
-print(original_message)
+print(received_message)
 
 
 
@@ -161,15 +190,10 @@ print(original_message)
 # -------- Authentication --------
 
 
-# H(received message)
-
 new_hash = SHA256.new(
-    original_message.encode()
+    received_message.encode()
 )
 
-
-
-# Verify E(PUa, signature)
 
 try:
 
@@ -177,7 +201,6 @@ try:
         new_hash,
         signature
     )
-
 
     print("\nPGP Authentication Successful")
     print("Confidentiality Successful")
